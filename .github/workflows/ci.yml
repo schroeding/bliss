@@ -29,7 +29,7 @@ jobs:
 
       - name: Install web-ext
         run: |
-          npm install --global web-ext
+          sudo npm install --global web-ext
           
       # Runs a single command using the runners shell
       - name: Lint with web-ext
