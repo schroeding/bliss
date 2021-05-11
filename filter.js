@@ -71,9 +71,9 @@ import("./common.js").then((common) => {
 					"Request (" + common.getHostname(details.url) + ") called OnStart Event"
 				);
 				let documentPath =
-					typeof details.documentPath == "undefined"
+					typeof details.documentUrl == "undefined"
 						? details.url
-						: details.documentPath;
+						: details.documentUrl;
 				if (getSiteConfig(common.getHostname(documentPath)).isDisabled) {
 					console.log("Ignoring request, is disabled");
 					filter.disconnect();
