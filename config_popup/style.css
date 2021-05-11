@@ -1,0 +1,140 @@
+body {
+	min-width: 20em;
+}
+
+div {
+	padding: 0;
+}
+
+body,
+div#status-box,
+div#config-box,
+div#disable-reload-box,
+#settings-link-box {
+	padding: 0.5em;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+div#status-box {
+	text-align: center;
+}
+
+span#status-label {
+	width: 100%;
+	padding: 1em;
+	margin-bottom: 1em;
+}
+
+div#status-box.not-running > span#status-label {
+	background: rgba(30, 30, 30, 0.1);
+}
+
+div#status-box.active > span#status-label {
+	background: #12bc00;
+	color: white;
+}
+
+div#status-box.disabled > span#status-label {
+	background: #d7b600;
+	color: white;
+}
+
+div#status-box.perm-disabled > span#status-label {
+	background: #a4000f;
+	color: white;
+}
+
+div#status-box.not-running > button#status-toggle,
+div#status-box.perm-disabled > button#status-toggle {
+	background-color: gray !important;
+	box-shadow: none !important;
+}
+
+button#status-toggle,
+button#disable-reload,
+button#settings-link {
+	appearance: none;
+	padding: 1rem;
+	text-align: center;
+	border: none;
+	border-radius: calc(1rem / 2);
+	background-color: rgba(0, 96, 223, 0.8);
+	color: white;
+}
+
+button#status-toggle {
+	width: 100%;
+}
+
+button#disable-reload,
+button#settings-link {
+	padding: 0.5rem !important;
+}
+
+button#status-toggle:hover,
+button#disable-reload:hover,
+button#settings-link:hover {
+	background-color: #003eaa;
+}
+
+button#status-toggle:focus,
+button#disable-reload:focus,
+button#settings-link:focus {
+	box-shadow: 0 0 0 1px #0a84ff inset;
+}
+
+button#status-toggle:active,
+button#disable-reload:active,
+button#settings-link:active {
+	background-color: #002275;
+}
+
+div#config-box {
+	display: flex;
+	flex-direction: column;
+}
+
+div#config-box > div {
+	width: 100%;
+}
+
+span#max-dimensions-label,
+span#site-settings-label {
+	margin-bottom: 0.5em;
+}
+
+div.slider-label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+
+div.slider-preview {
+	height: 2rem;
+	width: 3rem;
+	padding: 0;
+	display: flex;
+	background-color: rgba(0, 96, 223, 0.8);
+}
+
+div#max-height-preview,
+div#max-width-preview,
+div#max-size-preview {
+	margin: auto;
+	padding: 0;
+	background-color: orange;
+	width: 100%;
+	height: 100%;
+}
+
+input[type="range"] {
+	width: 100%;
+}
+
+div#config-box.not-running {
+	display: none;
+}

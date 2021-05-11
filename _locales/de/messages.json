@@ -1,0 +1,90 @@
+{
+    "extensionName": {
+      "message": "Bliss - Content Filter"
+    },
+  
+    "extensionDescription": {
+      "message": "Entfernt Teile von Webseiten, die unerwünschte Stichworte enthalten"
+    },
+  
+    "statusToggle": {
+      "message": "Optischen Filter umschalten"
+    },
+  
+    "statusNotRunning": {
+      "message": "Filter bereit und wartet"
+    },
+  
+    "statusActive": {
+      "message": "Filter aktiv"
+    },
+  
+    "statusDisabled": {
+      "message": "Filter temporär deaktiviert"
+    },
+  
+    "statusPermDisabled": {
+      "message": "Filter für diese Seite deaktiviert"
+    },
+  
+    "siteSettings": {
+      "message": "Einstellungen für diese Seite"
+    },
+  
+    "globalSettings": {
+      "message": "Standardeinstellungen"
+    },
+  
+    "maxDimensions": {
+      "message": "Max. Größe der zu versteckenden Elemente"
+    },
+  
+    "height": {
+      "message": "Höhe"
+    },
+  
+    "width": {
+      "message": "Breite"
+    },
+  
+    "percentOfScreenspace": {
+      "message": "Größe"
+    },
+  
+    "disableAndReload": {
+      "message": "Für diese Seite deaktivieren"
+    },
+
+    "enableAndReload": {
+      "message": "Für diese Seite aktivieren"
+    },
+
+    "optionsSite": {
+      "message": "Wörter zu Filter hinzufügen"
+    },
+
+    "settingsDescription": {
+      "message": "Verwalte hier Wörter und n-Gramme, die gefiltert werden sollen. Reguläre Ausdrücke werden unterstützt (sind aber nicht nötig), Groß- und Kleinschreibung spielt keine Rolle."
+    },
+
+    "wordsListLabel": {
+      "message": "Wörter"
+    },
+
+    "wordsListDescription": {
+      "message": "Wörter werden durch (westliche / europäische) Satzzeichen oder Leerzeichen getrennt"
+    },
+
+    "ngramsListLabel": {
+      "message": "n-Gramme"
+    },
+
+    "ngramsListDescription": {
+      "message": "n-Gramme können überall vorkommen. Du kannst die auch für Sprachen ohne Worttrennung verwenden. Vorsicht: Kurze (englische) n-Gramme mit wenigen Zeichen können zu Problemen mit vielen Webseiten führen."
+    },
+
+    "addEntryToList": {
+      "message": "Klicke, um Eintrag hinzuzufügen..."
+    }
+}
+  

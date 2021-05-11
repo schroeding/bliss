@@ -1,0 +1,90 @@
+{
+    "extensionName": {
+      "message": "Bliss - Content Filter"
+    },
+  
+    "extensionDescription": {
+      "message": "Removes content that contains unwanted keywords for peace of mind"
+    },
+  
+    "statusToggle": {
+      "message": "Toggle visual filter"
+    },
+  
+    "statusNotRunning": {
+      "message": "Filter is enabled and on stand-by"
+    },
+  
+    "statusActive": {
+      "message": "Filter is active"
+    },
+  
+    "statusDisabled": {
+      "message": "Filter is temporary disabled"
+    },
+  
+    "statusPermDisabled": {
+      "message": "Filter is disabled for this site"
+    },
+  
+    "siteSettings": {
+      "message": "Settings for this website"
+    },
+  
+    "globalSettings": {
+      "message": "Default settings"
+    },
+  
+    "maxDimensions": {
+      "message": "Maximum size of elements to hide:"
+    },
+  
+    "height": {
+      "message": "Height"
+    },
+  
+    "width": {
+      "message": "Width"
+    },
+  
+    "percentOfScreenspace": {
+      "message": "Size"
+    },
+  
+    "disableAndReload": {
+      "message": "Disable for this site"
+    },
+
+    "enableAndReload": {
+      "message": "Enable for this site"
+    },
+
+    "optionsSite": {
+      "message": "Add words to filter"
+    },
+
+    "settingsDescription": {
+      "message": "Manage words and n-grams that should be filtered. Regular expressions are supported (but not required), upper- or lowercase does not matter"
+    },
+
+    "wordsListLabel": {
+      "message": "Words"
+    },
+
+    "wordsListDescription": {
+      "message": "Words are separated by (western) punctuation marks or spaces"
+    },
+
+    "ngramsListLabel": {
+      "message": "n-Grams"
+    },
+
+    "ngramsListDescription": {
+      "message": "n-Grams can occour anywhere. You can also use them for words in languages without word-separation. Careful: Short (english) n-Grams can lead to problems with some web pages"
+    },
+
+    "addEntryToList": {
+      "message": "Click to add Entry..."
+    }
+}
+  
