@@ -32,8 +32,7 @@
 
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "bliss@rumia.org",
-			"strict_min_version": "72.0"
+			"id": "bliss@rumia.org"
 		}
 	},
 
