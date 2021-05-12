@@ -27,6 +27,8 @@ import("./common.js").then((common) => {
 	let unwantedNgrams = [];
 	let regExList = [];
 
+	let isStealthMode = false;
+
 	const allowedTypes = ["text/html", "text/plain", "application/json"];
 
 	function calculateRegExList() {
@@ -178,7 +180,7 @@ import("./common.js").then((common) => {
 		["blocking"]
 	);
 
-	function loadSettings() {
+	async function loadSettings() {
 		browser.storage.sync
 			.get({
 				unwantedWords: [],
@@ -190,6 +192,7 @@ import("./common.js").then((common) => {
 					maxPercentOfScreenSpace: 0.3,
 					isDisabled: false,
 				},
+				isStealthMode: false,
 			})
 			.then((response) => {
 				unwantedWords = response.unwantedWords;
@@ -197,6 +200,17 @@ import("./common.js").then((common) => {
 				siteConfig = response.siteConfig;
 				defaultSiteConfig = response.defaultSiteConfig;
 				calculateRegExList();
+				isStealthMode = response.isStealthMode;
+				if (isStealthMode) {
+					browser.browserAction.setIcon(
+						{ path: "media/icon-decoy.svg" }
+					);
+				} else {
+					browser.browserAction.setIcon(
+						{}
+					)
+				}
+				return Promise.resolve(true);
 			});
 	}
 
