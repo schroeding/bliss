@@ -123,7 +123,7 @@ import("./common.js").then((common) => {
 
 			if (dataUnicodeText != dataUnicodeTextUnmodified) {
 				filter.write(textEncoder.encode(dataUnicodeText));
-				filter.close();
+				filter.disconnect();
 
 				if (details.tabId >= 0) {
 				console.log("Injecting CS into request");
@@ -147,7 +147,7 @@ import("./common.js").then((common) => {
 				for (let dataChunk of readData) {
 					filter.write(dataChunk);
 				}
-				filter.close();
+				filter.disconnect();
 			}
 		};
 	}
