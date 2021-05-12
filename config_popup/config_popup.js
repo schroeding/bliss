@@ -41,9 +41,33 @@ sizeLabel.textContent = browser.i18n.getMessage("percentOfScreenspace");
 disableFilterToggle.textContent = browser.i18n.getMessage("disableAndReload");
 linkToSettings.textContent = browser.i18n.getMessage("optionsSite");
 
+stealthDecoy = document.getElementById("stealth-decoy-box");
+
 let common = null;
 import("../common.js").then((common) => {
 	let config = new common.SiteConfig();
+
+	function setStealth(status) {
+		if (!status) {
+			stealthDecoy.style.display = "none";
+			document.body.classList.remove("stealth");
+		} else {
+			stealthDecoy.style.display = "block";
+			document.body.classList.add("stealth");
+		}
+	}
+
+	stealthDecoy.addEventListener("dblclick", (event) => {
+		setStealth(false);
+	});
+
+	browser.storage.sync
+		.get({
+			isStealthMode: false,
+		})
+		.then((response) => {
+			setStealth(response.isStealthMode);
+		});
 
 	function setStatusIndicator(status) {
 		if (!isLoaded) {
@@ -137,7 +161,6 @@ import("../common.js").then((common) => {
 				sizeSlider.value = config.maxPercentOfScreenSpace * 100;
 				sizePreview.style.width = `${sizeSlider.value}%`;
 				sizePreview.style.height = `${sizeSlider.value}%`;
-				console.log(response);
 			},
 			(error) => {
 				isLoaded = false;
@@ -150,8 +173,6 @@ import("../common.js").then((common) => {
 					request.request = common.GET_SITE_CONFIG;
 					request.value = common.getHostname(tab.url);
 					browser.runtime.sendMessage(request).then((response) => {
-						console.log(response);
-						console.log("tt");
 						if (response.config.isDisabled) {
 							setStatusIndicator(false);
 						}
@@ -209,7 +230,6 @@ import("../common.js").then((common) => {
 			let request = new common.RequestPacket();
 			request.type = common.POPUP_MESSAGE;
 			request.request = common.TOGGLE_STATUS;
-			console.log(common.getHostname(tab.url) + " permanent");
 			request.value = common.getHostname(tab.url);
 			browser.runtime.sendMessage(request).then((response) => {
 				browser.tabs.reload(tab.tabId);

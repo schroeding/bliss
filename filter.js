@@ -27,6 +27,8 @@ import("./common.js").then((common) => {
 	let unwantedNgrams = [];
 	let regExList = [];
 
+	let isStealthMode = false;
+
 	const allowedTypes = ["text/html", "text/plain", "application/json"];
 
 	function calculateRegExList() {
@@ -67,53 +69,56 @@ import("./common.js").then((common) => {
 
 		filter.onstart = (event) => {
 			try {
-				console.log(
+				/*console.log(
 					"Request (" + common.getHostname(details.url) + ") called OnStart Event"
-				);
+				);*/
 				let documentPath =
 					typeof details.documentUrl == "undefined"
 						? details.url
 						: details.documentUrl;
 				if (getSiteConfig(common.getHostname(documentPath)).isDisabled) {
-					console.log("Ignoring request, is disabled");
+					// console.log("Ignoring request, is disabled");
 					filter.disconnect();
 					return;
 				}
 				for (let headerEntry of details.responseHeaders) {
 					if (headerEntry.name.toLowerCase() == "content-type") {
 						if (allowedTypes.includes(headerEntry.value.split(";")[0])) {
-							console.log("Request is valid");
+							// console.log("Request is valid");
 							return;
 						}
 
-						console.log("Request is not valid!");
+						// console.log("Request is not valid!");
 						filter.disconnect();
 						return;
 					}
 				}
-				console.log("Request is valid (no mime)");
-				console.log(details.responseHeaders);
-			} catch { filter.disconnect(); }
+				// console.log("Request is valid (no mime)");
+			} catch {
+				filter.disconnect();
+			}
 		};
 
 		let readData = [];
 		filter.ondata = (event) => {
 			try {
 				readData.push(event.data);
-			} catch { console.log("Error in onData event!") }
+			} catch {
+				/*console.log("Error in onData event!")*/
+			}
 		};
 
 		filter.onstop = async (event) => {
 			//let dataBlob = new Blob(readData);
 			//let dataUnicodeText = await dataBlob.text();
-			let dataUnicodeText = ''
+			let dataUnicodeText = "";
 			for (let dataChunk of readData) {
 				dataUnicodeText += textDecoder.decode(dataChunk, { stream: true });
 			}
 			let dataUnicodeTextUnmodified = dataUnicodeText;
 
 			//console.log(dataBlob);
-			
+
 			for (let regExp of regExList.values()) {
 				dataUnicodeText = dataUnicodeText.replace(
 					regExp.target,
@@ -123,31 +128,31 @@ import("./common.js").then((common) => {
 
 			if (dataUnicodeText != dataUnicodeTextUnmodified) {
 				filter.write(textEncoder.encode(dataUnicodeText));
-				filter.close();
+				filter.disconnect();
 
 				if (details.tabId >= 0) {
-				console.log("Injecting CS into request");
-				let request = new common.RequestPacket();
-				request.type = common.FILTER_MESSAGE;
-				request.request = common.HEARTBEAT;
-				browser.tabs.sendMessage(details.tabId, request).then(
-					function () {
-						console.log("... but is already injected");
-					},
-					function () {
-						browser.tabs.executeScript(details.tabId, {
-							file: "/contentscript.js",
-							allFrames: false,
-						});
-					}
-				);
+					console.log("Injecting CS into request");
+					let request = new common.RequestPacket();
+					request.type = common.FILTER_MESSAGE;
+					request.request = common.HEARTBEAT;
+					browser.tabs.sendMessage(details.tabId, request).then(
+						function () {
+							console.log("... but is already injected");
+						},
+						function () {
+							browser.tabs.executeScript(details.tabId, {
+								file: "/contentscript.js",
+								allFrames: false,
+							});
+						}
+					);
 				}
 			} else {
-				console.log("No Change for Request, sending unmodified original...")
+				// console.log("No Change for Request, sending unmodified original...")
 				for (let dataChunk of readData) {
 					filter.write(dataChunk);
 				}
-				filter.close();
+				filter.disconnect();
 			}
 		};
 	}
@@ -178,7 +183,7 @@ import("./common.js").then((common) => {
 		["blocking"]
 	);
 
-	function loadSettings() {
+	async function loadSettings() {
 		browser.storage.sync
 			.get({
 				unwantedWords: [],
@@ -190,6 +195,7 @@ import("./common.js").then((common) => {
 					maxPercentOfScreenSpace: 0.3,
 					isDisabled: false,
 				},
+				isStealthMode: false,
 			})
 			.then((response) => {
 				unwantedWords = response.unwantedWords;
@@ -197,6 +203,15 @@ import("./common.js").then((common) => {
 				siteConfig = response.siteConfig;
 				defaultSiteConfig = response.defaultSiteConfig;
 				calculateRegExList();
+				isStealthMode = response.isStealthMode;
+				if (isStealthMode) {
+					browser.browserAction.setIcon({ path: "media/icon-decoy.svg" });
+					browser.browserAction.setTitle({ title: "AdBlock Pro" });
+				} else {
+					browser.browserAction.setIcon({});
+					browser.browserAction.setTitle({ title: "" });
+				}
+				return Promise.resolve(true);
 			});
 	}
 
@@ -207,7 +222,6 @@ import("./common.js").then((common) => {
 	});
 
 	browser.runtime.onMessage.addListener((request) => {
-		console.log("CM recieved (filter)");
 		switch (request.type) {
 			case common.POPUP_MESSAGE:
 				switch (request.request) {
@@ -218,9 +232,7 @@ import("./common.js").then((common) => {
 						return Promise.resolve(response);
 					case common.TOGGLE_STATUS:
 						let tempConfig = getSiteConfig(request.value);
-						console.log(tempConfig);
 						tempConfig.isDisabled = !tempConfig.isDisabled;
-						console.log(tempConfig);
 						setSiteConfig(request.value, tempConfig);
 						return Promise.resolve(true);
 				}
@@ -231,7 +243,6 @@ import("./common.js").then((common) => {
 						let response = new common.SiteConfigPacket();
 						response.hostname = request.value;
 						response.config = getSiteConfig(request.value);
-						console.log(response);
 						return Promise.resolve(response);
 					case common.SET_SITE_CONFIG:
 						setSiteConfig(request.value.hostname, request.value.config);

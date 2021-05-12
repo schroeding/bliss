@@ -193,7 +193,6 @@ if (typeof alreadyInjected == "undefined") {
 	getConfig().then(activateFilter());
 
 	browser.runtime.onMessage.addListener((request) => {
-		console.log("CM recieved (contentscript)");
 		switch (request.type) {
 			case common.POPUP_MESSAGE:
 				switch (request.request) {
