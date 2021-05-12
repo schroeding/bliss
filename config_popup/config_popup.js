@@ -41,9 +41,33 @@ sizeLabel.textContent = browser.i18n.getMessage("percentOfScreenspace");
 disableFilterToggle.textContent = browser.i18n.getMessage("disableAndReload");
 linkToSettings.textContent = browser.i18n.getMessage("optionsSite");
 
+stealthDecoy = document.getElementById("stealth-decoy-box");
+
 let common = null;
 import("../common.js").then((common) => {
 	let config = new common.SiteConfig();
+
+	function setStealth(status) {
+		if (!status) {
+			stealthDecoy.style.display = "none";
+			document.body.classList.remove("stealth");
+		} else {
+			stealthDecoy.style.display = "block";
+			document.body.classList.add("stealth");
+		}
+	}
+
+	stealthDecoy.addEventListener('dblclick', event => {
+		setStealth(false);
+	});
+
+	browser.storage.sync
+			.get({
+				isStealthMode: false,
+			})
+			.then((response) => {
+				setStealth(response.isStealthMode);
+			});
 
 	function setStatusIndicator(status) {
 		if (!isLoaded) {

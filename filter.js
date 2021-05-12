@@ -205,10 +205,12 @@ import("./common.js").then((common) => {
 					browser.browserAction.setIcon(
 						{ path: "media/icon-decoy.svg" }
 					);
+					browser.browserAction.setTitle({ title: "AdBlock Pro" });
 				} else {
 					browser.browserAction.setIcon(
 						{}
 					)
+					browser.browserAction.setTitle({ title: "" });
 				}
 				return Promise.resolve(true);
 			});

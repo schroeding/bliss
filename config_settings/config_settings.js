@@ -27,6 +27,9 @@ let sizeLabel = document.getElementById("max-size-label");
 let sizeSlider = document.getElementById("max-size-slider");
 let sizePreview = document.getElementById("max-size-preview");
 
+let stealthLabel = document.getElementById("stealthmode-label");
+let stealthDescription = document.getElementById("stealthmode-description");
+let stealthCheckboxLabel = document.getElementById("stealthmode-checkbox-label");
 let stealthModeCheckbox = document.getElementById("stealthmode-checkbox");
 
 descriptionLabel.textContent = browser.i18n.getMessage("settingsDescription");
@@ -43,6 +46,10 @@ maxDimensionsLabel.textContent = browser.i18n.getMessage("maxDimensions");
 heightLabel.textContent = browser.i18n.getMessage("height");
 widthLabel.textContent = browser.i18n.getMessage("width");
 sizeLabel.textContent = browser.i18n.getMessage("percentOfScreenspace");
+
+stealthLabel.textContent = browser.i18n.getMessage("stealthLabel");
+stealthDescription.textContent = browser.i18n.getMessage("stealthDescription");
+stealthCheckboxLabel.textContent = browser.i18n.getMessage("stealthCheckbox");
 
 let unwantedWords = [];
 let unwantedNGrams = [];

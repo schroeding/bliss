@@ -85,6 +85,18 @@
 
     "addEntryToList": {
       "message": "Click to add Entry..."
+    },
+
+    "stealthLabel": {
+      "message": "Stealth Mode"
+    },
+
+    "stealthDescription": {
+      "message": "In this mode, the icon is changed to a generic AdBlocker one. After clicking the icon, a fake AdBlocker interface is displayed. The real interface is displayed only after double-clicking on the fake AdBlocker interface."
+    },
+
+    "stealthCheckbox": {
+      "message": "Activate stealth mode"
     }
 }
   
