@@ -27,6 +27,8 @@ let sizeLabel = document.getElementById("max-size-label");
 let sizeSlider = document.getElementById("max-size-slider");
 let sizePreview = document.getElementById("max-size-preview");
 
+let stealthModeCheckbox = document.getElementById("stealthmode-checkbox");
+
 descriptionLabel.textContent = browser.i18n.getMessage("settingsDescription");
 listWordsLabel.textContent = browser.i18n.getMessage("wordsListLabel");
 listWordsDescription.textContent = browser.i18n.getMessage(
@@ -50,12 +52,14 @@ let defaultSiteConfig = {
 	maxPercentOfScreenSpace: 0.3,
 	isDisabled: false,
 };
+let isStealthMode = false;
 
 function updateSettings() {
 	browser.storage.sync.set({
 		unwantedWords: unwantedWords,
 		unwantedNGrams: unwantedNGrams,
 		defaultSiteConfig: defaultSiteConfig,
+		isStealthMode: isStealthMode,
 	});
 }
 
@@ -154,11 +158,13 @@ browser.storage.sync.get(
 			maxPercentOfScreenSpace: 0.3,
 			isDisabled: false,
 		},
+		isStealthMode: false,
 	},
 	(response) => {
 		unwantedWords = response.unwantedWords;
 		unwantedNGrams = response.unwantedNGrams;
 		defaultSiteConfig = response.defaultSiteConfig;
+		isStealthMode = response.isStealthMode;
 
 		heightSlider.value = defaultSiteConfig.maxHeightPercent * 100;
 		heightPreview.style.height = `${heightSlider.value}%`;
@@ -167,6 +173,7 @@ browser.storage.sync.get(
 		sizeSlider.value = defaultSiteConfig.maxPercentOfScreenSpace * 100;
 		sizePreview.style.width = `${sizeSlider.value}%`;
 		sizePreview.style.height = `${sizeSlider.value}%`;
+		stealthModeCheckbox.checked = isStealthMode;
 
 		addListEntry(false, false);
 		for (word of unwantedWords) {
@@ -198,3 +205,8 @@ sizeSlider.addEventListener("change", (event) => {
 	defaultSiteConfig.maxPercentOfScreenSpace = event.target.value / 100;
 	updateSettings();
 });
+
+stealthModeCheckbox.addEventListener("change", (event) => {
+	isStealthMode = event.target.checked;
+	updateSettings();
+})

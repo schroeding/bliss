@@ -12,7 +12,8 @@ div {
 body,
 div#description-box,
 div#lists-box,
-div#default-config-box {
+div#default-config-box,
+div#stealthmode-box {
 	display: flex;
 	flex-direction: column;
 	padding: 0.5em;
@@ -35,7 +36,8 @@ div#lists-box > div {
 
 span#words-list-label,
 span#n-grams-list-label,
-span#global-settings-label {
+span#global-settings-label,
+span#stealthmode-label {
 	font-weight: bold;
 }
 
