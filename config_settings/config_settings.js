@@ -1,5 +1,4 @@
 browser.theme.getCurrent().then((theme) => {
-	console.log(theme);
 	document.body.style.backgroundColor = theme.colors.ntp_background;
 	document.body.style.color = theme.colors.ntp_text;
 });
@@ -29,7 +28,9 @@ let sizePreview = document.getElementById("max-size-preview");
 
 let stealthLabel = document.getElementById("stealthmode-label");
 let stealthDescription = document.getElementById("stealthmode-description");
-let stealthCheckboxLabel = document.getElementById("stealthmode-checkbox-label");
+let stealthCheckboxLabel = document.getElementById(
+	"stealthmode-checkbox-label"
+);
 let stealthModeCheckbox = document.getElementById("stealthmode-checkbox");
 
 descriptionLabel.textContent = browser.i18n.getMessage("settingsDescription");
@@ -216,4 +217,4 @@ sizeSlider.addEventListener("change", (event) => {
 stealthModeCheckbox.addEventListener("change", (event) => {
 	isStealthMode = event.target.checked;
 	updateSettings();
-})
+});

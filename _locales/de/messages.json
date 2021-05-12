@@ -85,6 +85,18 @@
 
     "addEntryToList": {
       "message": "Klicke, um Eintrag hinzuzufügen..."
+    },
+
+    "stealthLabel": {
+      "message": "Tarnkappenmodus"
+    },
+
+    "stealthDescription": {
+      "message": "In diesem Modus wird das Icon durch ein generisches AdBlocker-Icon ersetzt. Beim Klick auf das Icon wird ein fake AdBlocker-Interface angezeigt, erst nach einem Doppelklick auf dieses Interface wird das echte Interface angezeigt."
+    },
+
+    "stealthCheckbox": {
+      "message": "Tarnkappenmodus aktivieren"
     }
 }
   
