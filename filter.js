@@ -71,10 +71,9 @@ import("./common.js").then((common) => {
     let onStartDone = false;
 
     filter.onstart = (event) => {
-      //onStartDone = true;
-      console.log(
+      /* console.log(
         "OnStart RequestID " + details.requestId + " (" + details.url + ")"
-      );
+      ); */
 
       let sitePath =
         typeof details.documentUrl == "undefined"
@@ -96,7 +95,7 @@ import("./common.js").then((common) => {
                   console.log(splittedEntry[1] + " is okay");
                   textDecoder = new TextDecoder(splittedEntry[1].toLowerCase());
                 } catch {
-                  console.log("... but an error occoured");
+                  // console.log("... but an error occoured");
                 }
               }
             }
@@ -109,17 +108,14 @@ import("./common.js").then((common) => {
           }
         }
       }
-      console.log("No MIME");
+      // console.log("No MIME");
       isNotFiltered = true;
       onStartDone = true;
     };
 
     filter.ondata = (event) => {
-      console.log("OnData RequestID " + details.requestId);
-
       let counter = 0;
       while (!onStartDone) {
-        console.log("onStart is not done");
         counter++;
         if (counter > 100000) {
           console.log("LOOP DETECTED! THIS SHOULD ***NEVER*** HAPPEN!");
@@ -137,8 +133,6 @@ import("./common.js").then((common) => {
     };
 
     filter.onstop = async (event) => {
-      console.log("OnStop RequestID " + details.requestId);
-
       if (!isNotFiltered) {
         if (textDecoder == null) {
           textDecoder = new TextDecoder("utf-8");
@@ -160,13 +154,13 @@ import("./common.js").then((common) => {
         if (dataUnicodeText != dataUnicodeTextUnmodified) {
           filter.write(textEncoder.encode(dataUnicodeText));
           if (details.tabId >= 0) {
-            console.log("Injecting CS into request");
+            // console.log("Injecting CS into request");
             let request = new common.RequestPacket();
             request.type = common.FILTER_MESSAGE;
             request.request = common.HEARTBEAT;
             browser.tabs.sendMessage(details.tabId, request).then(
               function () {
-                console.log("... but is already injected");
+                // console.log("... but is already injected");
               },
               function () {
                 browser.tabs.executeScript(details.tabId, {
