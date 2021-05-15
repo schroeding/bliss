@@ -1,5 +1,5 @@
 browser.theme.getCurrent().then((theme) => {
-  console.log(theme);
+  // console.log(theme);
   document.body.style.backgroundColor = theme.colors.popup;
   document.body.style.color = theme.colors.popup_text;
 });
@@ -112,7 +112,7 @@ import("../common.js").then((common) => {
     request,
     callback,
     errorCallback = function (error) {
-      console.log(error);
+      // console.log(error);
     }
   ) {
     browser.tabs
