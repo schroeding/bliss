@@ -188,9 +188,15 @@ if (typeof alreadyInjected == "undefined") {
 		for (let censoredElement of document.querySelectorAll(`.${censorClass}`)) {
 			uncensorElement(censoredElement, true);
 		}
+		Promise.resolve(true);
 	}
 
-	getConfig().then(activateFilter());
+	getConfig().then(function () {
+		activateFilter();
+		setTimeout(function () {
+			deactivateFilter().then(activateFilter());
+		}, 1500);
+	});
 
 	browser.runtime.onMessage.addListener((request) => {
 		switch (request.type) {
