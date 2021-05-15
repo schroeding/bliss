@@ -65,95 +65,126 @@ import("./common.js").then((common) => {
 	function textFilter(details) {
 		let filter = browser.webRequest.filterResponseData(details.requestId);
 		let textEncoder = new TextEncoder();
-		let textDecoder = new TextDecoder("utf-8");
+		let textDecoder = null;
+		let readData = [];
+		let isNotFiltered = false;
+		let onStartDone = false;
 
 		filter.onstart = (event) => {
-			try {
-				/*console.log(
-					"Request (" + common.getHostname(details.url) + ") called OnStart Event"
-				);*/
-				let documentPath =
-					typeof details.documentUrl == "undefined"
-						? details.url
-						: details.documentUrl;
-				if (getSiteConfig(common.getHostname(documentPath)).isDisabled) {
-					// console.log("Ignoring request, is disabled");
-					filter.disconnect();
-					return;
-				}
-				for (let headerEntry of details.responseHeaders) {
-					if (headerEntry.name.toLowerCase() == "content-type") {
-						if (allowedTypes.includes(headerEntry.value.split(";")[0])) {
-							// console.log("Request is valid");
-							return;
-						}
+			onStartDone = true;
+			console.log(
+				"OnStart RequestID " + details.requestId + " (" + details.url + ")"
+			);
 
-						// console.log("Request is not valid!");
-						filter.disconnect();
+			let sitePath =
+				typeof details.documentUrl == "undefined"
+					? details.url
+					: details.documentUrl;
+			if (getSiteConfig(common.getHostname(sitePath)).isDisabled) {
+				isNotFiltered = true;
+				onStartDone = true;
+				return;
+			}
+			for (let headerEntry of details.responseHeaders) {
+				if (headerEntry.name.toLowerCase() == "content-type") {
+					let contentTypeData = headerEntry.value.split(";");
+					if (allowedTypes.includes(contentTypeData[0].trim().toLowerCase())) {
+						for (contentTypeEntry of contentTypeData) {
+							let splittedEntry = contentTypeEntry.trim().split("=");
+							if (splittedEntry[0].toLowerCase() == "charset") {
+								try {
+									console.log(splittedEntry[1] + " is okay");
+									textDecoder = new TextDecoder(splittedEntry[1].toLowerCase());
+								} catch {
+									console.log("... but an error occoured");
+								}
+							}
+						}
+						onStartDone = true;
+						return;
+					} else {
+						isNotFiltered = true;
+						onStartDone = true;
 						return;
 					}
 				}
-				// console.log("Request is valid (no mime)");
-			} catch {
-				filter.disconnect();
 			}
+			console.log("No MIME");
+			isNotFiltered = true;
+			onStartDone = true;
 		};
 
-		let readData = [];
 		filter.ondata = (event) => {
-			try {
-				readData.push(event.data);
-			} catch {
-				/*console.log("Error in onData event!")*/
+			console.log("OnData RequestID " + details.requestId);
+
+			let counter = 0;
+			while (!onStartDone) {
+				console.log("onStart is not done");
+				counter++;
+				if (counter > 100000) {
+					console.log("LOOP DETECTED! THIS SHOULD ***NEVER*** HAPPEN!");
+					filter.close();
+					return;
+				}
 			}
+
+			if (isNotFiltered) {
+				filter.write(event.data);
+				return;
+			}
+
+			readData.push(event.data);
+		
 		};
 
 		filter.onstop = async (event) => {
-			//let dataBlob = new Blob(readData);
-			//let dataUnicodeText = await dataBlob.text();
-			let dataUnicodeText = "";
-			for (let dataChunk of readData) {
-				dataUnicodeText += textDecoder.decode(dataChunk, { stream: true });
-			}
-			let dataUnicodeTextUnmodified = dataUnicodeText;
+			console.log("OnStop RequestID " + details.requestId);
 
-			//console.log(dataBlob);
+			if (!isNotFiltered) {
+				if (textDecoder == null) {
+					textDecoder = new TextDecoder("utf-8");
+				}
 
-			for (let regExp of regExList.values()) {
-				dataUnicodeText = dataUnicodeText.replace(
-					regExp.target,
-					regExp.censorBar
-				);
-			}
+				let dataUnicodeText = "";
+				for (let dataChunk of readData) {
+					dataUnicodeText += textDecoder.decode(dataChunk, { stream: true });
+				}
+				let dataUnicodeTextUnmodified = dataUnicodeText;
 
-			if (dataUnicodeText != dataUnicodeTextUnmodified) {
-				filter.write(textEncoder.encode(dataUnicodeText));
-				filter.disconnect();
-
-				if (details.tabId >= 0) {
-					console.log("Injecting CS into request");
-					let request = new common.RequestPacket();
-					request.type = common.FILTER_MESSAGE;
-					request.request = common.HEARTBEAT;
-					browser.tabs.sendMessage(details.tabId, request).then(
-						function () {
-							console.log("... but is already injected");
-						},
-						function () {
-							browser.tabs.executeScript(details.tabId, {
-								file: "/contentscript.js",
-								allFrames: false,
-							});
-						}
+				for (let regExp of regExList.values()) {
+					dataUnicodeText = dataUnicodeText.replace(
+						regExp.target,
+						regExp.censorBar
 					);
 				}
-			} else {
-				// console.log("No Change for Request, sending unmodified original...")
-				for (let dataChunk of readData) {
-					filter.write(dataChunk);
+
+				if (dataUnicodeText != dataUnicodeTextUnmodified) {
+					filter.write(textEncoder.encode(dataUnicodeText));
+					if (details.tabId >= 0) {
+						console.log("Injecting CS into request");
+						let request = new common.RequestPacket();
+						request.type = common.FILTER_MESSAGE;
+						request.request = common.HEARTBEAT;
+						browser.tabs.sendMessage(details.tabId, request).then(
+							function () {
+								console.log("... but is already injected");
+							},
+							function () {
+								browser.tabs.executeScript(details.tabId, {
+									file: "/contentscript.js",
+									allFrames: false,
+								});
+							}
+						);
+					}
+				} else {
+					for (let readChunk of readData) {
+						filter.write(readChunk);
+					}
 				}
-				filter.disconnect();
 			}
+
+			filter.disconnect();
 		};
 	}
 
