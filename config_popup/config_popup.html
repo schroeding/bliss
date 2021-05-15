@@ -1,56 +1,56 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<link rel="stylesheet" href="style.css" />
-	</head>
-	<body>
-		<div id="stealth-decoy-box"></div>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="stealth-decoy-box"></div>
 
-		<div id="status-box" class="not-running">
-			<span id="status-label">status</span>
-			<button id="status-toggle">status toggle</button>
-		</div>
+    <div id="status-box" class="not-running">
+      <span id="status-label">status</span>
+      <button id="status-toggle">status toggle</button>
+    </div>
 
-		<div id="config-box" class="not-running">
-			<span id="site-settings-label">site settings</span>
-			<span id="max-dimensions-label">max dimensions</span>
-			<div>
-				<div class="slider-label">
-					<label for="max-height-slider" id="max-height-label">height</label>
-					<div class="slider-preview">
-						<div id="max-height-preview"></div>
-					</div>
-				</div>
-				<input type="range" min="5" max="100" step="1" id="max-height-slider" />
-			</div>
-			<div>
-				<div class="slider-label">
-					<label for="max-width-slider" id="max-width-label">width</label>
-					<div class="slider-preview">
-						<div id="max-width-preview"></div>
-					</div>
-				</div>
-				<input type="range" min="5" max="100" step="1" id="max-width-slider" />
-			</div>
-			<div>
-				<div class="slider-label">
-					<label for="max-size-slider" id="max-size-label">size</label>
-					<div class="slider-preview">
-						<div id="max-size-preview"></div>
-					</div>
-				</div>
-				<input type="range" min="5" max="100" step="1" id="max-size-slider" />
-			</div>
-		</div>
+    <div id="config-box" class="not-running">
+      <span id="site-settings-label">site settings</span>
+      <span id="max-dimensions-label">max dimensions</span>
+      <div>
+        <div class="slider-label">
+          <label for="max-height-slider" id="max-height-label">height</label>
+          <div class="slider-preview">
+            <div id="max-height-preview"></div>
+          </div>
+        </div>
+        <input type="range" min="5" max="100" step="1" id="max-height-slider" />
+      </div>
+      <div>
+        <div class="slider-label">
+          <label for="max-width-slider" id="max-width-label">width</label>
+          <div class="slider-preview">
+            <div id="max-width-preview"></div>
+          </div>
+        </div>
+        <input type="range" min="5" max="100" step="1" id="max-width-slider" />
+      </div>
+      <div>
+        <div class="slider-label">
+          <label for="max-size-slider" id="max-size-label">size</label>
+          <div class="slider-preview">
+            <div id="max-size-preview"></div>
+          </div>
+        </div>
+        <input type="range" min="5" max="100" step="1" id="max-size-slider" />
+      </div>
+    </div>
 
-		<div id="disable-reload-box">
-			<button id="disable-reload" class="default-button">disable reload</button>
-		</div>
+    <div id="disable-reload-box">
+      <button id="disable-reload" class="default-button">disable reload</button>
+    </div>
 
-		<div id="settings-link-box">
-			<button id="settings-link">options site</button>
-		</div>
-		<script src="config_popup.js"></script>
-	</body>
+    <div id="settings-link-box">
+      <button id="settings-link">options site</button>
+    </div>
+    <script src="config_popup.js"></script>
+  </body>
 </html>
