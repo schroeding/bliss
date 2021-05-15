@@ -210,7 +210,9 @@ if (typeof alreadyInjected == "undefined") {
           case common.SET_CONTENTSCRIPT_CONFIG:
             config = request.value;
             setConfig();
-            deactivateFilter().then(activateFilter());
+            if (isActive) {
+              deactivateFilter().then(activateFilter());
+            }
             return Promise.resolve(true);
           case common.TOGGLE_STATUS:
             isActive = !isActive;
