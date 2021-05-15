@@ -1,6 +1,6 @@
 # Bliss - Content Filter
 
-[![CI Status](https://github.com/schroeding/bliss/workflows/CI/badge.svg?branch=master)](https://github.com/schroeding/bliss/actions?query=workflow:CI%20branch:master)
+[![CI Status](https://github.com/schroeding/bliss/workflows/CI/badge.svg?branch=master)](https://github.com/schroeding/bliss/actions?query=workflow:CI%20branch:master) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/6a82bd753ce549d2a166ff79e07dc7ea)](https://www.codacy.com/gh/schroeding/bliss/dashboard)
 
 This extension can be used to hide parts of web pages that contain unwanted keywords, defined by yourself. Ideally, you will not even notice that they appear on a web page.
 
