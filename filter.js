@@ -92,7 +92,7 @@ import("./common.js").then((common) => {
               let splittedEntry = contentTypeEntry.trim().split("=");
               if (splittedEntry[0].toLowerCase() == "charset") {
                 try {
-                  console.log(splittedEntry[1] + " is okay");
+                  // console.log(splittedEntry[1] + " is okay");
                   textDecoder = new TextDecoder(splittedEntry[1].toLowerCase());
                 } catch {
                   // console.log("... but an error occoured");
@@ -118,7 +118,7 @@ import("./common.js").then((common) => {
       while (!onStartDone) {
         counter++;
         if (counter > 100000) {
-          console.log("LOOP DETECTED! THIS SHOULD ***NEVER*** HAPPEN!");
+          console.error("LOOP DETECTED! THIS SHOULD ***NEVER*** HAPPEN!");
           filter.close();
           return;
         }

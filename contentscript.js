@@ -58,7 +58,7 @@ if (typeof alreadyInjected == "undefined") {
     SET_CONTENTSCRIPT_CONFIG: 5,
   };
 
-  console.log("CS injected into " + window.location);
+  // console.log("CS injected into " + window.location);
   let isActive = true;
 
   let config = new common.SiteConfig();
