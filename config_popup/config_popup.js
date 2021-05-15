@@ -1,7 +1,7 @@
 browser.theme.getCurrent().then((theme) => {
-	console.log(theme);
-	document.body.style.backgroundColor = theme.colors.popup;
-	document.body.style.color = theme.colors.popup_text;
+  // console.log(theme);
+  document.body.style.backgroundColor = theme.colors.popup;
+  document.body.style.color = theme.colors.popup_text;
 });
 
 let isLoaded = false;
@@ -45,204 +45,204 @@ stealthDecoy = document.getElementById("stealth-decoy-box");
 
 let common = null;
 import("../common.js").then((common) => {
-	let config = new common.SiteConfig();
+  let config = new common.SiteConfig();
 
-	function setStealth(status) {
-		if (!status) {
-			stealthDecoy.style.display = "none";
-			document.body.classList.remove("stealth");
-		} else {
-			stealthDecoy.style.display = "block";
-			document.body.classList.add("stealth");
-		}
-	}
+  function setStealth(status) {
+    if (!status) {
+      stealthDecoy.style.display = "none";
+      document.body.classList.remove("stealth");
+    } else {
+      stealthDecoy.style.display = "block";
+      document.body.classList.add("stealth");
+    }
+  }
 
-	stealthDecoy.addEventListener("dblclick", (event) => {
-		setStealth(false);
-	});
+  stealthDecoy.addEventListener("dblclick", (event) => {
+    setStealth(false);
+  });
 
-	browser.storage.sync
-		.get({
-			isStealthMode: false,
-		})
-		.then((response) => {
-			setStealth(response.isStealthMode);
-		});
+  browser.storage.sync
+    .get({
+      isStealthMode: false,
+    })
+    .then((response) => {
+      setStealth(response.isStealthMode);
+    });
 
-	function setStatusIndicator(status) {
-		if (!isLoaded) {
-			if (status) {
-				statusLabel.textContent = browser.i18n.getMessage("statusNotRunning");
-				statusBox.classList.remove("perm-disabled");
-				statusBox.classList.add("not-running");
-				statusBox.classList.remove("disabled");
-				statusBox.classList.remove("active");
-				configBox.classList.add("not-running");
-			} else {
-				statusLabel.textContent = browser.i18n.getMessage("statusPermDisabled");
-				disableFilterToggle.textContent = browser.i18n.getMessage(
-					"enableAndReload"
-				);
-				statusBox.classList.add("perm-disabled");
-				statusBox.classList.remove("not-running");
-				statusBox.classList.remove("disabled");
-				statusBox.classList.remove("active");
-				configBox.classList.add("not-running");
-			}
-			return;
-		}
-		if (status) {
-			statusLabel.textContent = browser.i18n.getMessage("statusActive");
-			statusBox.classList.remove("perm-disabled");
-			statusBox.classList.remove("not-running");
-			statusBox.classList.remove("disabled");
-			statusBox.classList.add("active");
-			configBox.classList.remove("not-running");
-		} else {
-			statusLabel.textContent = browser.i18n.getMessage("statusDisabled");
-			statusBox.classList.remove("perm-disabled");
-			statusBox.classList.remove("not-running");
-			statusBox.classList.add("disabled");
-			statusBox.classList.remove("active");
-			configBox.classList.remove("not-running");
-		}
-	}
+  function setStatusIndicator(status) {
+    if (!isLoaded) {
+      if (status) {
+        statusLabel.textContent = browser.i18n.getMessage("statusNotRunning");
+        statusBox.classList.remove("perm-disabled");
+        statusBox.classList.add("not-running");
+        statusBox.classList.remove("disabled");
+        statusBox.classList.remove("active");
+        configBox.classList.add("not-running");
+      } else {
+        statusLabel.textContent = browser.i18n.getMessage("statusPermDisabled");
+        disableFilterToggle.textContent = browser.i18n.getMessage(
+          "enableAndReload"
+        );
+        statusBox.classList.add("perm-disabled");
+        statusBox.classList.remove("not-running");
+        statusBox.classList.remove("disabled");
+        statusBox.classList.remove("active");
+        configBox.classList.add("not-running");
+      }
+      return;
+    }
+    if (status) {
+      statusLabel.textContent = browser.i18n.getMessage("statusActive");
+      statusBox.classList.remove("perm-disabled");
+      statusBox.classList.remove("not-running");
+      statusBox.classList.remove("disabled");
+      statusBox.classList.add("active");
+      configBox.classList.remove("not-running");
+    } else {
+      statusLabel.textContent = browser.i18n.getMessage("statusDisabled");
+      statusBox.classList.remove("perm-disabled");
+      statusBox.classList.remove("not-running");
+      statusBox.classList.add("disabled");
+      statusBox.classList.remove("active");
+      configBox.classList.remove("not-running");
+    }
+  }
 
-	function sendRequestToTab(
-		request,
-		callback,
-		errorCallback = function (error) {
-			console.log(error);
-		}
-	) {
-		browser.tabs
-			.query({ currentWindow: true, active: true })
-			.then(function (tabs) {
-				browser.tabs
-					.sendMessage(tabs[0].id, request)
-					.then(callback)
-					.catch(errorCallback);
-			});
-	}
+  function sendRequestToTab(
+    request,
+    callback,
+    errorCallback = function (error) {
+      // console.log(error);
+    }
+  ) {
+    browser.tabs
+      .query({ currentWindow: true, active: true })
+      .then(function (tabs) {
+        browser.tabs
+          .sendMessage(tabs[0].id, request)
+          .then(callback)
+          .catch(errorCallback);
+      });
+  }
 
-	async function getCurrentTabIfURLNotEmpty() {
-		let tabs = await browser.tabs.query({
-			currentWindow: true,
-			active: true,
-		});
+  async function getCurrentTabIfURLNotEmpty() {
+    let tabs = await browser.tabs.query({
+      currentWindow: true,
+      active: true,
+    });
 
-		if (typeof tabs[0].url == "undefined") {
-			return Promise.resolve(false);
-		}
-		return Promise.resolve(tabs[0]);
-	}
+    if (typeof tabs[0].url == "undefined") {
+      return Promise.resolve(false);
+    }
+    return Promise.resolve(tabs[0]);
+  }
 
-	function getStatus() {
-		let request = new common.RequestPacket();
-		request.type = common.POPUP_MESSAGE;
-		request.request = common.GET_CONTENTSCRIPT_STATUS;
-		sendRequestToTab(
-			request,
-			(response) => {
-				isLoaded = true;
-				config = response.config;
-				if (config.isDisabled) {
-					isLoaded = false;
-					if (response.config.isDisabled) {
-						setStatusIndicator(false);
-						return;
-					}
-				}
-				setStatusIndicator(response.isActive);
-				heightSlider.value = config.maxHeightPercent * 100;
-				heightPreview.style.height = `${heightSlider.value}%`;
-				widthSlider.value = config.maxWidthPercent * 100;
-				widthPreview.style.width = `${widthSlider.value}%`;
-				sizeSlider.value = config.maxPercentOfScreenSpace * 100;
-				sizePreview.style.width = `${sizeSlider.value}%`;
-				sizePreview.style.height = `${sizeSlider.value}%`;
-			},
-			(error) => {
-				isLoaded = false;
-				getCurrentTabIfURLNotEmpty().then((tab) => {
-					if (!tab) {
-						return;
-					}
-					let request = new common.RequestPacket();
-					request.type = common.POPUP_MESSAGE;
-					request.request = common.GET_SITE_CONFIG;
-					request.value = common.getHostname(tab.url);
-					browser.runtime.sendMessage(request).then((response) => {
-						if (response.config.isDisabled) {
-							setStatusIndicator(false);
-						}
-					});
-				});
-			}
-		);
-	}
+  function getStatus() {
+    let request = new common.RequestPacket();
+    request.type = common.POPUP_MESSAGE;
+    request.request = common.GET_CONTENTSCRIPT_STATUS;
+    sendRequestToTab(
+      request,
+      (response) => {
+        isLoaded = true;
+        config = response.config;
+        if (config.isDisabled) {
+          isLoaded = false;
+          if (response.config.isDisabled) {
+            setStatusIndicator(false);
+            return;
+          }
+        }
+        setStatusIndicator(response.isActive);
+        heightSlider.value = config.maxHeightPercent * 100;
+        heightPreview.style.height = `${heightSlider.value}%`;
+        widthSlider.value = config.maxWidthPercent * 100;
+        widthPreview.style.width = `${widthSlider.value}%`;
+        sizeSlider.value = config.maxPercentOfScreenSpace * 100;
+        sizePreview.style.width = `${sizeSlider.value}%`;
+        sizePreview.style.height = `${sizeSlider.value}%`;
+      },
+      (error) => {
+        isLoaded = false;
+        getCurrentTabIfURLNotEmpty().then((tab) => {
+          if (!tab) {
+            return;
+          }
+          let request = new common.RequestPacket();
+          request.type = common.POPUP_MESSAGE;
+          request.request = common.GET_SITE_CONFIG;
+          request.value = common.getHostname(tab.url);
+          browser.runtime.sendMessage(request).then((response) => {
+            if (response.config.isDisabled) {
+              setStatusIndicator(false);
+            }
+          });
+        });
+      }
+    );
+  }
 
-	getStatus();
+  getStatus();
 
-	function setConfig() {
-		let request = new common.RequestPacket();
-		request.type = common.POPUP_MESSAGE;
-		request.request = common.SET_CONTENTSCRIPT_CONFIG;
-		request.value = config;
-		sendRequestToTab(request, (response) => {
-			getStatus();
-		});
-	}
+  function setConfig() {
+    let request = new common.RequestPacket();
+    request.type = common.POPUP_MESSAGE;
+    request.request = common.SET_CONTENTSCRIPT_CONFIG;
+    request.value = config;
+    sendRequestToTab(request, (response) => {
+      getStatus();
+    });
+  }
 
-	statusToggle.addEventListener("click", (event) => {
-		let request = new common.RequestPacket();
-		request.type = common.POPUP_MESSAGE;
-		request.request = common.TOGGLE_STATUS;
-		sendRequestToTab(request, (response) => {
-			getStatus();
-		});
-	});
+  statusToggle.addEventListener("click", (event) => {
+    let request = new common.RequestPacket();
+    request.type = common.POPUP_MESSAGE;
+    request.request = common.TOGGLE_STATUS;
+    sendRequestToTab(request, (response) => {
+      getStatus();
+    });
+  });
 
-	heightSlider.addEventListener("change", (event) => {
-		heightPreview.style.height = `${event.target.value}%`;
-		config.maxHeightPercent = event.target.value / 100;
-		setConfig();
-	});
+  heightSlider.addEventListener("change", (event) => {
+    heightPreview.style.height = `${event.target.value}%`;
+    config.maxHeightPercent = event.target.value / 100;
+    setConfig();
+  });
 
-	widthSlider.addEventListener("change", (event) => {
-		widthPreview.style.width = `${event.target.value}%`;
-		config.maxWidthPercent = event.target.value / 100;
-		setConfig();
-	});
+  widthSlider.addEventListener("change", (event) => {
+    widthPreview.style.width = `${event.target.value}%`;
+    config.maxWidthPercent = event.target.value / 100;
+    setConfig();
+  });
 
-	sizeSlider.addEventListener("change", (event) => {
-		sizePreview.style.width = `${event.target.value}%`;
-		sizePreview.style.height = `${event.target.value}%`;
-		config.maxPercentOfScreenSpace = event.target.value / 100;
-		setConfig();
-	});
+  sizeSlider.addEventListener("change", (event) => {
+    sizePreview.style.width = `${event.target.value}%`;
+    sizePreview.style.height = `${event.target.value}%`;
+    config.maxPercentOfScreenSpace = event.target.value / 100;
+    setConfig();
+  });
 
-	disableFilterToggle.addEventListener("click", (event) => {
-		getCurrentTabIfURLNotEmpty().then((tab) => {
-			if (!tab) {
-				return;
-			}
-			let request = new common.RequestPacket();
-			request.type = common.POPUP_MESSAGE;
-			request.request = common.TOGGLE_STATUS;
-			request.value = common.getHostname(tab.url);
-			browser.runtime.sendMessage(request).then((response) => {
-				browser.tabs.reload(tab.tabId);
-				window.close();
-			});
-		});
-	});
+  disableFilterToggle.addEventListener("click", (event) => {
+    getCurrentTabIfURLNotEmpty().then((tab) => {
+      if (!tab) {
+        return;
+      }
+      let request = new common.RequestPacket();
+      request.type = common.POPUP_MESSAGE;
+      request.request = common.TOGGLE_STATUS;
+      request.value = common.getHostname(tab.url);
+      browser.runtime.sendMessage(request).then((response) => {
+        browser.tabs.reload(tab.tabId);
+        window.close();
+      });
+    });
+  });
 
-	linkToSettings.addEventListener("click", function () {
-		browser.runtime.openOptionsPage();
-	});
+  linkToSettings.addEventListener("click", function () {
+    browser.runtime.openOptionsPage();
+  });
 
-	browser.tabs.onActivated.addListener(function () {
-		window.close();
-	});
+  browser.tabs.onActivated.addListener(function () {
+    window.close();
+  });
 });

@@ -1,47 +1,47 @@
 {
-	"manifest_version": 2,
+  "manifest_version": 2,
 
-	"name": "__MSG_extensionName__",
-	"description": "__MSG_extensionDescription__",
-	"version": "0.98rc1",
+  "name": "__MSG_extensionName__",
+  "description": "__MSG_extensionDescription__",
+  "version": "0.98rc2",
 
-	"default_locale": "en",
+  "default_locale": "en",
 
-	"icons": {
-		"32": "media/icon-cyan.svg"
-	},
+  "icons": {
+    "32": "media/icon-cyan.svg"
+  },
 
-	"background": {
-		"scripts": ["filter.js"]
-	},
+  "background": {
+    "scripts": ["filter.js"]
+  },
 
-	"browser_action": {
-		"browser_style": true,
-		"default_popup": "config_popup/config_popup.html",
-		"default_icon": {
-			"32": "media/icon.svg"
-		},
-		"theme_icons": [
-			{
-				"light": "media/icon-dark.svg",
-				"dark": "media/icon.svg",
-				"size": 32
-			}
-		]
-	},
+  "browser_action": {
+    "browser_style": true,
+    "default_popup": "config_popup/config_popup.html",
+    "default_icon": {
+      "32": "media/icon.svg"
+    },
+    "theme_icons": [
+      {
+        "light": "media/icon-dark.svg",
+        "dark": "media/icon.svg",
+        "size": 32
+      }
+    ]
+  },
 
-	"browser_specific_settings": {
-		"gecko": {
-			"id": "bliss@rumia.org"
-		}
-	},
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bliss@rumia.org"
+    }
+  },
 
-	"options_ui": {
-		"browser_style": true,
-		"page": "config_settings/config_settings.html"
-	},
+  "options_ui": {
+    "browser_style": true,
+    "page": "config_settings/config_settings.html"
+  },
 
-	"web_accessible_resources": ["media/placeholder_image.png", "common.js"],
+  "web_accessible_resources": ["media/placeholder_image.png", "common.js"],
 
-	"permissions": ["webRequestBlocking", "webRequest", "<all_urls>", "storage"]
+  "permissions": ["webRequestBlocking", "webRequest", "<all_urls>", "storage"]
 }

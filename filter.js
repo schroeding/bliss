@@ -1,254 +1,279 @@
 let common = null;
 import("./common.js").then((common) => {
-	let defaultSiteConfig = {
-		maxHeightPercent: 0.7,
-		maxWidthPercent: 0.7,
-		maxPercentOfScreenSpace: 0.3,
-		isDisabled: false,
-	};
+  let defaultSiteConfig = {
+    maxHeightPercent: 0.7,
+    maxWidthPercent: 0.7,
+    maxPercentOfScreenSpace: 0.3,
+    isDisabled: false,
+  };
 
-	let siteConfig = {};
+  let siteConfig = {};
 
-	function getSiteConfig(hostname) {
-		if (hostname in siteConfig) {
-			return siteConfig[hostname];
-		}
-		return defaultSiteConfig;
-	}
+  function getSiteConfig(hostname) {
+    if (hostname in siteConfig) {
+      return siteConfig[hostname];
+    }
+    return defaultSiteConfig;
+  }
 
-	function setSiteConfig(hostname, config) {
-		siteConfig[hostname] = config;
-		browser.storage.sync.set({
-			siteConfig: siteConfig,
-		});
-	}
+  function setSiteConfig(hostname, config) {
+    siteConfig[hostname] = config;
+    browser.storage.sync.set({
+      siteConfig: siteConfig,
+    });
+  }
 
-	let unwantedWords = [];
-	let unwantedNgrams = [];
-	let regExList = [];
+  let unwantedWords = [];
+  let unwantedNgrams = [];
+  let regExList = [];
 
-	let isStealthMode = false;
+  let isStealthMode = false;
 
-	const allowedTypes = ["text/html", "text/plain", "application/json"];
+  const allowedTypes = ["text/html", "text/plain", "application/json"];
 
-	function calculateRegExList() {
-		regExList = [];
-		for (let entry of unwantedWords.values()) {
-			try {
-				let lengthOfCensorBar = Math.max(6, entry.length - 3);
-				regExList.push({
-					target: new RegExp(
-						`\(?<![a-zA-Z\u0100-\uFFFF])${entry}(?![a-zA-Z\u0120-\uFFFF])`,
-						"gi"
-					),
-					censorBar: "█".repeat(lengthOfCensorBar),
-				});
-			} catch {
-				console.error("Invalid RegExp for word " + entry);
-			}
-		}
-		for (let entry of unwantedNgrams.values()) {
-			try {
-				let lengthOfCensorBar = Math.max(6, entry.length - 3);
-				regExList.push({
-					target: new RegExp(entry, "gi"),
-					censorBar: "█".repeat(lengthOfCensorBar),
-				});
-			} catch {
-				console.error("Invalid RegExp for n-gramm " + entry);
-			}
-		}
-	}
+  function calculateRegExList() {
+    regExList = [];
+    for (let entry of unwantedWords) {
+      try {
+        let lengthOfCensorBar = Math.max(6, entry.length - 3);
+        regExList.push({
+          target: new RegExp(
+            `\(?<![a-zA-Z\u007f-\uFFFF])${entry}(?![a-zA-Z\u007f-\uFFFF])`,
+            "gi"
+          ),
+          censorBar: "█".repeat(lengthOfCensorBar),
+        });
+      } catch {
+        console.error("Invalid RegExp for word " + entry);
+      }
+    }
+    for (let entry of unwantedNgrams) {
+      try {
+        let lengthOfCensorBar = Math.max(6, entry.length - 3);
+        regExList.push({
+          target: new RegExp(entry, "gi"),
+          censorBar: "█".repeat(lengthOfCensorBar),
+        });
+      } catch {
+        console.error("Invalid RegExp for n-gramm " + entry);
+      }
+    }
+  }
 
-	calculateRegExList();
+  calculateRegExList();
 
-	function textFilter(details) {
-		let filter = browser.webRequest.filterResponseData(details.requestId);
-		let textEncoder = new TextEncoder();
-		let textDecoder = new TextDecoder("utf-8");
+  function textFilter(details) {
+    let filter = browser.webRequest.filterResponseData(details.requestId);
+    let textEncoder = new TextEncoder();
+    let textDecoder = null;
+    let readData = [];
+    let isNotFiltered = false;
+    let onStartDone = false;
 
-		filter.onstart = (event) => {
-			try {
-				/*console.log(
-					"Request (" + common.getHostname(details.url) + ") called OnStart Event"
-				);*/
-				let documentPath =
-					typeof details.documentUrl == "undefined"
-						? details.url
-						: details.documentUrl;
-				if (getSiteConfig(common.getHostname(documentPath)).isDisabled) {
-					// console.log("Ignoring request, is disabled");
-					filter.disconnect();
-					return;
-				}
-				for (let headerEntry of details.responseHeaders) {
-					if (headerEntry.name.toLowerCase() == "content-type") {
-						if (allowedTypes.includes(headerEntry.value.split(";")[0])) {
-							// console.log("Request is valid");
-							return;
-						}
+    filter.onstart = (event) => {
+      /* console.log(
+        "OnStart RequestID " + details.requestId + " (" + details.url + ")"
+      ); */
 
-						// console.log("Request is not valid!");
-						filter.disconnect();
-						return;
-					}
-				}
-				// console.log("Request is valid (no mime)");
-			} catch {
-				filter.disconnect();
-			}
-		};
+      let sitePath =
+        typeof details.documentUrl == "undefined"
+          ? details.url
+          : details.documentUrl;
+      if (getSiteConfig(common.getHostname(sitePath)).isDisabled) {
+        isNotFiltered = true;
+        onStartDone = true;
+        return;
+      }
+      for (let headerEntry of details.responseHeaders) {
+        if (headerEntry.name.toLowerCase() == "content-type") {
+          let contentTypeData = headerEntry.value.split(";");
+          if (allowedTypes.includes(contentTypeData[0].trim().toLowerCase())) {
+            for (contentTypeEntry of contentTypeData) {
+              let splittedEntry = contentTypeEntry.trim().split("=");
+              if (splittedEntry[0].toLowerCase() == "charset") {
+                try {
+                  // console.log(splittedEntry[1] + " is okay");
+                  textDecoder = new TextDecoder(splittedEntry[1].toLowerCase());
+                } catch {
+                  // console.log("... but an error occoured");
+                }
+              }
+            }
+            onStartDone = true;
+            return;
+          } else {
+            isNotFiltered = true;
+            onStartDone = true;
+            return;
+          }
+        }
+      }
+      // console.log("No MIME");
+      isNotFiltered = true;
+      onStartDone = true;
+    };
 
-		let readData = [];
-		filter.ondata = (event) => {
-			try {
-				readData.push(event.data);
-			} catch {
-				/*console.log("Error in onData event!")*/
-			}
-		};
+    filter.ondata = (event) => {
+      let counter = 0;
+      while (!onStartDone) {
+        counter++;
+        if (counter > 100000) {
+          console.error("LOOP DETECTED! THIS SHOULD ***NEVER*** HAPPEN!");
+          filter.close();
+          return;
+        }
+      }
 
-		filter.onstop = async (event) => {
-			//let dataBlob = new Blob(readData);
-			//let dataUnicodeText = await dataBlob.text();
-			let dataUnicodeText = "";
-			for (let dataChunk of readData) {
-				dataUnicodeText += textDecoder.decode(dataChunk, { stream: true });
-			}
-			let dataUnicodeTextUnmodified = dataUnicodeText;
+      if (isNotFiltered) {
+        filter.write(event.data);
+        return;
+      }
 
-			//console.log(dataBlob);
+      readData.push(event.data);
+    };
 
-			for (let regExp of regExList.values()) {
-				dataUnicodeText = dataUnicodeText.replace(
-					regExp.target,
-					regExp.censorBar
-				);
-			}
+    filter.onstop = async (event) => {
+      if (!isNotFiltered) {
+        if (textDecoder == null) {
+          textDecoder = new TextDecoder("utf-8");
+        }
 
-			if (dataUnicodeText != dataUnicodeTextUnmodified) {
-				filter.write(textEncoder.encode(dataUnicodeText));
-				filter.disconnect();
+        let dataUnicodeText = "";
+        for (let dataChunk of readData) {
+          dataUnicodeText += textDecoder.decode(dataChunk, { stream: true });
+        }
+        let dataUnicodeTextUnmodified = dataUnicodeText;
 
-				if (details.tabId >= 0) {
-					console.log("Injecting CS into request");
-					let request = new common.RequestPacket();
-					request.type = common.FILTER_MESSAGE;
-					request.request = common.HEARTBEAT;
-					browser.tabs.sendMessage(details.tabId, request).then(
-						function () {
-							console.log("... but is already injected");
-						},
-						function () {
-							browser.tabs.executeScript(details.tabId, {
-								file: "/contentscript.js",
-								allFrames: false,
-							});
-						}
-					);
-				}
-			} else {
-				// console.log("No Change for Request, sending unmodified original...")
-				for (let dataChunk of readData) {
-					filter.write(dataChunk);
-				}
-				filter.disconnect();
-			}
-		};
-	}
+        for (let regExp of regExList.values()) {
+          dataUnicodeText = dataUnicodeText.replace(
+            regExp.target,
+            regExp.censorBar
+          );
+        }
 
-	function mediaFilter(details) {
-		if (details.url.includes(encodeURIComponent("███"))) {
-			return {
-				redirectUrl: browser.runtime.getURL("media/placeholder_image.png"),
-			};
-		}
-	}
+        if (dataUnicodeText != dataUnicodeTextUnmodified) {
+          filter.write(textEncoder.encode(dataUnicodeText));
+          if (details.tabId >= 0) {
+            // console.log("Injecting CS into request");
+            let request = new common.RequestPacket();
+            request.type = common.FILTER_MESSAGE;
+            request.request = common.HEARTBEAT;
+            browser.tabs.sendMessage(details.tabId, request).then(
+              function () {
+                // console.log("... but is already injected");
+              },
+              function () {
+                browser.tabs.executeScript(details.tabId, {
+                  file: "/contentscript.js",
+                  allFrames: false,
+                });
+              }
+            );
+          }
+        } else {
+          for (let readChunk of readData) {
+            filter.write(readChunk);
+          }
+        }
+      }
 
-	browser.webRequest.onHeadersReceived.addListener(
-		textFilter,
-		{
-			urls: ["<all_urls>"],
-			types: ["main_frame", "sub_frame", "xmlhttprequest"],
-		},
-		["blocking", "responseHeaders"]
-	);
+      filter.disconnect();
+    };
+  }
 
-	browser.webRequest.onHeadersReceived.addListener(
-		mediaFilter,
-		{
-			urls: ["<all_urls>"],
-			types: ["image", "imageset", "media"],
-		},
-		["blocking"]
-	);
+  function mediaFilter(details) {
+    if (details.url.includes(encodeURIComponent("███"))) {
+      return {
+        redirectUrl:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH5QUFFDkf7cDUMAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAMRSURBVHja7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwG8CtAAB/9gEUAAAAABJRU5ErkJggg==",
+      };
+    }
+  }
 
-	async function loadSettings() {
-		browser.storage.sync
-			.get({
-				unwantedWords: [],
-				unwantedNGrams: [],
-				siteConfig: {},
-				defaultSiteConfig: {
-					maxHeightPercent: 0.7,
-					maxWidthPercent: 0.7,
-					maxPercentOfScreenSpace: 0.3,
-					isDisabled: false,
-				},
-				isStealthMode: false,
-			})
-			.then((response) => {
-				unwantedWords = response.unwantedWords;
-				unwantedNgrams = response.unwantedNGrams;
-				siteConfig = response.siteConfig;
-				defaultSiteConfig = response.defaultSiteConfig;
-				calculateRegExList();
-				isStealthMode = response.isStealthMode;
-				if (isStealthMode) {
-					browser.browserAction.setIcon({ path: "media/icon-decoy.svg" });
-					browser.browserAction.setTitle({ title: "AdBlock Pro" });
-				} else {
-					browser.browserAction.setIcon({});
-					browser.browserAction.setTitle({ title: "" });
-				}
-				return Promise.resolve(true);
-			});
-	}
+  browser.webRequest.onHeadersReceived.addListener(
+    textFilter,
+    {
+      urls: ["<all_urls>"],
+      types: ["main_frame", "sub_frame", "xmlhttprequest"],
+    },
+    ["blocking", "responseHeaders"]
+  );
 
-	loadSettings();
+  browser.webRequest.onHeadersReceived.addListener(
+    mediaFilter,
+    {
+      urls: ["<all_urls>"],
+      types: ["image", "imageset", "media"],
+    },
+    ["blocking"]
+  );
 
-	browser.storage.onChanged.addListener(function () {
-		loadSettings();
-	});
+  async function loadSettings() {
+    browser.storage.sync
+      .get({
+        unwantedWords: [],
+        unwantedNGrams: [],
+        siteConfig: {},
+        defaultSiteConfig: {
+          maxHeightPercent: 0.7,
+          maxWidthPercent: 0.7,
+          maxPercentOfScreenSpace: 0.3,
+          isDisabled: false,
+        },
+        isStealthMode: false,
+      })
+      .then((response) => {
+        unwantedWords = response.unwantedWords;
+        unwantedNgrams = response.unwantedNGrams;
+        siteConfig = response.siteConfig;
+        defaultSiteConfig = response.defaultSiteConfig;
+        calculateRegExList();
+        isStealthMode = response.isStealthMode;
+        if (isStealthMode) {
+          browser.browserAction.setIcon({ path: "media/icon-decoy.svg" });
+          browser.browserAction.setTitle({ title: "AdBlock Pro" });
+        } else {
+          browser.browserAction.setIcon({});
+          browser.browserAction.setTitle({ title: "" });
+        }
+        return Promise.resolve(true);
+      });
+  }
 
-	browser.runtime.onMessage.addListener((request) => {
-		switch (request.type) {
-			case common.POPUP_MESSAGE:
-				switch (request.request) {
-					case common.GET_SITE_CONFIG:
-						let response = new common.SiteConfigPacket();
-						response.hostname = request.value;
-						response.config = getSiteConfig(request.value);
-						return Promise.resolve(response);
-					case common.TOGGLE_STATUS:
-						let tempConfig = getSiteConfig(request.value);
-						tempConfig.isDisabled = !tempConfig.isDisabled;
-						setSiteConfig(request.value, tempConfig);
-						return Promise.resolve(true);
-				}
-				break;
-			case common.CONTENT_MESSAGE:
-				switch (request.request) {
-					case common.GET_SITE_CONFIG:
-						let response = new common.SiteConfigPacket();
-						response.hostname = request.value;
-						response.config = getSiteConfig(request.value);
-						return Promise.resolve(response);
-					case common.SET_SITE_CONFIG:
-						setSiteConfig(request.value.hostname, request.value.config);
-						return Promise.resolve(true);
-				}
-				break;
-		}
-	});
+  loadSettings();
+
+  browser.storage.onChanged.addListener(function () {
+    loadSettings();
+  });
+
+  browser.runtime.onMessage.addListener((request) => {
+    switch (request.type) {
+      case common.POPUP_MESSAGE:
+        switch (request.request) {
+          case common.GET_SITE_CONFIG:
+            let response = new common.SiteConfigPacket();
+            response.hostname = request.value;
+            response.config = getSiteConfig(request.value);
+            return Promise.resolve(response);
+          case common.TOGGLE_STATUS:
+            let tempConfig = getSiteConfig(request.value);
+            tempConfig.isDisabled = !tempConfig.isDisabled;
+            setSiteConfig(request.value, tempConfig);
+            return Promise.resolve(true);
+        }
+        break;
+      case common.CONTENT_MESSAGE:
+        switch (request.request) {
+          case common.GET_SITE_CONFIG:
+            let response = new common.SiteConfigPacket();
+            response.hostname = request.value;
+            response.config = getSiteConfig(request.value);
+            return Promise.resolve(response);
+          case common.SET_SITE_CONFIG:
+            setSiteConfig(request.value.hostname, request.value.config);
+            return Promise.resolve(true);
+        }
+        break;
+    }
+  });
 });
