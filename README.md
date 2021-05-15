@@ -29,4 +29,4 @@ Your settings are synchronized via your browser (only if you are logged into Fir
 web-ext build -a build --overwrite-dest
 ```
 
-3. To test it, open the [Firefox Debug Page](about:debugging) and load the newly created ZIP file from the "build" folder as a temporary extension
+3. To test it, open the [Firefox Debug Page (about:debugging)](about:debugging) and load the newly created ZIP file from the "build" folder as a temporary extension
