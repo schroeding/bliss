@@ -17,16 +17,16 @@ Your settings are synchronized via your browser (only if you are logged into Fir
 
 ## Installation
 
-  - [Firefox AMO](https://addons.mozilla.org/en-US/firefox/addon/bliss-content-filter)
+- [Firefox AMO](https://addons.mozilla.org/en-US/firefox/addon/bliss-content-filter)
 
 ## Build Process
 
-  1. [Install Mozillas web-ext tool](https://github.com/mozilla/web-ext).
+1. [Install Mozillas web-ext tool](https://github.com/mozilla/web-ext).
 
-  2. Pack the extension with web-ext:
+2. Pack the extension with web-ext:
 
-  ```bash
-  web-ext build -a build --overwrite-dest
-  ```
+```bash
+web-ext build -a build --overwrite-dest
+```
 
-  3. To test it, open the [Firefox Debug Page](about:debugging) and load the newly created ZIP file from the "build" folder as a temporary extension
+3. To test it, open the [Firefox Debug Page](about:debugging) and load the newly created ZIP file from the "build" folder as a temporary extension
