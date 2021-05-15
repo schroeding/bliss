@@ -34,6 +34,12 @@ div#lists-box > div {
   width: 100%;
 }
 
+span {
+  display: inline-block;
+  width: 100%;
+  overflow: hidden;
+}
+
 span#words-list-label,
 span#n-grams-list-label,
 span#global-settings-label,
@@ -61,21 +67,11 @@ div#default-config-box > div {
   min-width: 10rem;
 }
 
-div#lists-box > div > span {
-  margin: 0 auto;
-}
-
 span#max-dimensions-label,
 span#global-settings-label,
 span#stealthmode-description {
   margin-bottom: 0.5em;
   width: 100%;
-}
-
-span {
-  display: inline-block;
-  width: 100%;
-  overflow: hidden;
 }
 
 div.slider-label {
@@ -108,12 +104,6 @@ input[type="text"] {
   width: 100%;
 }
 
-ul > li,
-li > span,
-li > input {
-  width: 100%;
-}
-
 ul {
   list-style-type: none;
   padding: 0;
@@ -123,6 +113,12 @@ ul {
 
 li {
   padding: 0.5em 1em;
+  width: 100%;
+}
+
+ul > li,
+li > span,
+li > input {
   width: 100%;
 }
 
@@ -152,4 +148,8 @@ li.edit span {
 
 li.edit input {
   display: initial;
+}
+
+div#lists-box > div > span {
+  margin: 0 auto;
 }

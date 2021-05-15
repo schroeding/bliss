@@ -50,10 +50,8 @@ div#status-box.perm-disabled > span#status-label {
   color: white;
 }
 
-div#status-box.not-running > button#status-toggle,
-div#status-box.perm-disabled > button#status-toggle {
-  background-color: gray !important;
-  box-shadow: none !important;
+button#status-toggle {
+  width: 100%;
 }
 
 button#status-toggle,
@@ -66,10 +64,6 @@ button#settings-link {
   border-radius: calc(1rem / 2);
   background-color: rgba(0, 96, 223, 0.8);
   color: white;
-}
-
-button#status-toggle {
-  width: 100%;
 }
 
 button#disable-reload,
@@ -93,6 +87,12 @@ button#status-toggle:active,
 button#disable-reload:active,
 button#settings-link:active {
   background-color: #002275;
+}
+
+div#status-box.not-running > button#status-toggle,
+div#status-box.perm-disabled > button#status-toggle {
+  background-color: gray !important;
+  box-shadow: none !important;
 }
 
 div#config-box {
