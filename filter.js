@@ -33,12 +33,12 @@ import("./common.js").then((common) => {
 
   function calculateRegExList() {
     regExList = [];
-    for (let entry of unwantedWords.values()) {
+    for (let entry of unwantedWords) {
       try {
         let lengthOfCensorBar = Math.max(6, entry.length - 3);
         regExList.push({
           target: new RegExp(
-            `\(?<![a-zA-Z\u0100-\uFFFF])${entry}(?![a-zA-Z\u0120-\uFFFF])`,
+            `\(?<![a-zA-Z\u007f-\uFFFF])${entry}(?![a-zA-Z\u007f-\uFFFF])`,
             "gi"
           ),
           censorBar: "█".repeat(lengthOfCensorBar),
@@ -47,7 +47,7 @@ import("./common.js").then((common) => {
         console.error("Invalid RegExp for word " + entry);
       }
     }
-    for (let entry of unwantedNgrams.values()) {
+    for (let entry of unwantedNgrams) {
       try {
         let lengthOfCensorBar = Math.max(6, entry.length - 3);
         regExList.push({
@@ -71,7 +71,7 @@ import("./common.js").then((common) => {
     let onStartDone = false;
 
     filter.onstart = (event) => {
-      onStartDone = true;
+      //onStartDone = true;
       console.log(
         "OnStart RequestID " + details.requestId + " (" + details.url + ")"
       );
@@ -190,7 +190,8 @@ import("./common.js").then((common) => {
   function mediaFilter(details) {
     if (details.url.includes(encodeURIComponent("███"))) {
       return {
-        redirectUrl: browser.runtime.getURL("media/placeholder_image.png"),
+        redirectUrl:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH5QUFFDkf7cDUMAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAMRSURBVHja7cGBAAAAAMOg+VNf4QBVAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwG8CtAAB/9gEUAAAAABJRU5ErkJggg==",
       };
     }
   }
