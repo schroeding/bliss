@@ -69,49 +69,7 @@ import("./common.js").then((common) => {
     let readData = [];
     let isNotFiltered = false;
     let onStartDone = false;
-
-    filter.onstart = (event) => {
-      /* console.log(
-        "OnStart RequestID " + details.requestId + " (" + details.url + ")"
-      ); */
-
-      let sitePath =
-        typeof details.documentUrl == "undefined"
-          ? details.url
-          : details.documentUrl;
-      if (getSiteConfig(common.getHostname(sitePath)).isDisabled) {
-        isNotFiltered = true;
-        onStartDone = true;
-        return;
-      }
-      for (let headerEntry of details.responseHeaders) {
-        if (headerEntry.name.toLowerCase() == "content-type") {
-          let contentTypeData = headerEntry.value.split(";");
-          if (allowedTypes.includes(contentTypeData[0].trim().toLowerCase())) {
-            for (contentTypeEntry of contentTypeData) {
-              let splittedEntry = contentTypeEntry.trim().split("=");
-              if (splittedEntry[0].toLowerCase() == "charset") {
-                try {
-                  // console.log(splittedEntry[1] + " is okay");
-                  textDecoder = new TextDecoder(splittedEntry[1].toLowerCase());
-                } catch {
-                  // console.log("... but an error occoured");
-                }
-              }
-            }
-            onStartDone = true;
-            return;
-          } else {
-            isNotFiltered = true;
-            onStartDone = true;
-            return;
-          }
-        }
-      }
-      // console.log("No MIME");
-      isNotFiltered = true;
-      onStartDone = true;
-    };
+    let brokeEncoding = false;
 
     filter.ondata = (event) => {
       let counter = 0;
@@ -171,14 +129,64 @@ import("./common.js").then((common) => {
             );
           }
         } else {
-          for (let readChunk of readData) {
-            filter.write(readChunk);
+          if (brokeEncoding) {
+            filter.write(textEncoder.encode(dataUnicodeText));
+          } else {
+            for (let readChunk of readData) {
+              filter.write(readChunk);
+            }
           }
         }
       }
 
       filter.disconnect();
     };
+
+    let sitePath =
+      typeof details.documentUrl == "undefined"
+        ? details.url
+        : details.documentUrl;
+    if (getSiteConfig(common.getHostname(sitePath)).isDisabled) {
+      isNotFiltered = true;
+      onStartDone = true;
+      return;
+    }
+    for (let i = 0; i < details.responseHeaders.length; i++) {
+      headerEntry = details.responseHeaders[i];
+      if (headerEntry.name.toLowerCase() == "content-type") {
+        let contentTypeData = headerEntry.value.split(";");
+        if (allowedTypes.includes(contentTypeData[0].trim().toLowerCase())) {
+          for (contentTypeEntry of contentTypeData) {
+            let splittedEntry = contentTypeEntry.trim().split("=");
+            if (splittedEntry[0].toLowerCase() == "charset") {
+              try {
+                //console.log(splittedEntry[1] + " is okay");
+                textDecoder = new TextDecoder(splittedEntry[1].toLowerCase());
+                if (splittedEntry[1].toLowerCase() != "utf-8") {
+                  details.responseHeaders[i].value =
+                    contentTypeData[0] + "; charset=utf-8";
+                  brokeEncoding = true;
+                }
+                //console.log(details.responseHeaders);
+              } catch {
+                //console.log("... but an error occoured");
+              }
+            }
+          }
+          onStartDone = true;
+          return { responseHeaders: details.responseHeaders };
+        } else {
+          isNotFiltered = true;
+          onStartDone = true;
+          return;
+        }
+      }
+    }
+    // console.log("No MIME");
+    isNotFiltered = true;
+    onStartDone = true;
+
+    //return blockingResponsePromise;
   }
 
   function mediaFilter(details) {
