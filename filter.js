@@ -160,16 +160,16 @@ import("./common.js").then((common) => {
             let splittedEntry = contentTypeEntry.trim().split("=");
             if (splittedEntry[0].toLowerCase() == "charset") {
               try {
-                console.log(splittedEntry[1] + " is okay");
+                //console.log(splittedEntry[1] + " is okay");
                 textDecoder = new TextDecoder(splittedEntry[1].toLowerCase());
                 if (splittedEntry[1].toLowerCase() != "utf-8") {
                   details.responseHeaders[i].value =
                     contentTypeData[0] + "; charset=utf-8";
                   brokeEncoding = true;
                 }
-                console.log(details.responseHeaders);
+                //console.log(details.responseHeaders);
               } catch {
-                console.log("... but an error occoured");
+                //console.log("... but an error occoured");
               }
             }
           }
