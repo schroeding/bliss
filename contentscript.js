@@ -39,7 +39,7 @@ if (typeof alreadyInjected == "undefined") {
     },
 
     SiteConfigPacket: class {
-      cunstructor() {
+      constructor() {
         this.hostname = "";
         this.config = new common.SiteConfig();
       }
