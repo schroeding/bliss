@@ -28,7 +28,7 @@ export class SiteConfig {
 }
 
 export class SiteConfigPacket {
-  cunstructor() {
+  constructor() {
     this.hostname = "";
     this.config = new SiteConfig();
   }
